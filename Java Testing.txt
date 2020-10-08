@@ -1,0 +1,245 @@
+#MindMapExport FreeplaneVersion:freeplane 1.8.0
+
+1 Testing
+1.1 Theory
+1.1.1 Fowler
+1.1.1.1 Mocks vs Stubs
+1.1.2 eXtreme Programming
+1.1.2.1 automated testing
+1.1.2.2 frequent refactoring
+1.2 Java
+1.2.1 Assertions
+1.2.1.1 AssertJ
+NOTE:
+<dependency> <groupId>org.assertj</groupId> <artifactId>assertj-core</artifactId> <!-- use 2.9.1 for Java 7 projects --> <version>3.16.1</version> <scope>test</scope> </dependency> import static org.assertj.core.api.Assertions.*;
+1.2.1.1.1 WithAssertions
+NOTE:
+assertThat(frodo).isIn(fellowshipOfTheRing); assertThat(frodo).isIn(sam, frodo, pippin); assertThat(sauron).isNotIn(fellowshipOfTheRing);
+1.2.1.1.1.1 assertThat style
+1.2.1.1.2 BDDAssertions
+NOTE:
+then(frodo.age).isEqualTo(33); then(frodo.getName()).isEqualTo("Frodo").isNotEqualTo("Frodon"); then(frodo).isIn(fellowshipOfTheRing); then(frodo).isIn(sam, frodo, pippin); then(sauron).isNotIn(fellowshipOfTheRing
+1.2.1.2 Hamcrest
+NOTE:
+import org.junit.jupiter.api.Test; import static org.hamcrest.MatcherAssert.assertThat; import static org.hamcrest.Matchers.*; public class BiscuitTest { @Test public void testEquals() { Biscuit theBiscuit = new Biscuit("Ginger"); Biscuit myBiscuit = new Biscuit("Ginger"); assertThat(theBiscuit, equalTo(myBiscuit)); } }
+1.2.1.2.1 assertThat style
+1.2.1.3 Truth
+NOTE:
+<dependency> <groupId>com.google.truth</groupId> <artifactId>truth</artifactId> <version>1.0.1</version> <scope>test</scope> </dependency> String string = "awesome"; assertThat(string).startsWith("awe"); assertWithMessage("Without me, it's just aweso").that(string).contains("me"); Iterable<Color> googleColors = googleLogo.getColors(); assertThat(googleColors) .containsExactly(BLUE, RED, YELLOW, BLUE, GREEN, RED) .inOrder();
+1.2.1.4 JUnit5
+1.2.1.4.1 org.junit.jupiter.api.Assertions.*
+1.2.2 Testing Libraries
+1.2.2.1 JUnit
+1.2.2.1.1 Junit4 (old)
+1.2.2.1.2 Junit5 (current)
+1.2.2.2 TestNg
+1.2.3 BDD
+1.2.3.1 Cucumber
+1.2.3.1.1 uses Gherkin
+1.2.3.1.2 uses glue code
+1.2.4 Mocking
+1.2.4.1 Mockito
+1.2.4.2 EasyMock
+1.2.4.3 jMock
+1.2.4.4 JMockit
+1.2.4.5 comparison
+1.2.4.6 types
+1.2.4.6.1 Dummy
+NOTE:
+Dummy objects are passed around but never actually used. Usually, they are just used to fill parameter lists.
+1.2.4.6.2 Fake
+NOTE:
+Fake objects have working implementations, but usually, take some shortcut which makes them not suitable for production (an in memory database is a good example).
+1.2.4.6.3 Stubs
+NOTE:
+Stubs provide canned answers to calls made during the test, usually not responding at all to anything outside what's programmed in for the test. Stubs may also record information about calls, such as an email gateway stub that remembers the messages it ‘sent', or maybe only how many messages it ‘sent'.
+1.2.4.6.4 Mocks
+NOTE:
+objects pre-programmed with expectations which form a specification of the calls they are expected to receive.
+1.2.4.6.4.1 vs Stubs
+1.2.5 SpringBoot Testing
+1.2.5.1 @ContextConfiguration
+NOTE:
+@ContextConfiguration defines class-level metadata that is used to determine how to load and configure an ApplicationContext for integration tests.
+1.2.5.1.1 @Configuration
+NOTE:
+@Configuration public class AppConfig { @Bean public MyBean myBean() { // instantiate, configure and return bean ... } }
+1.2.5.1.1.1 @Bean
+1.2.5.2 @SpringBootTest
+1.2.5.2.1 Features
+1.2.5.2.1.1 Caching of Application Context
+NOTE:
+A nice feature of the Spring Test support is that the application context is cached between tests. That way, if you have multiple methods in a test case or multiple test cases with the same configuration, they incur the cost of starting the application only once. You can control the cache by using the @DirtiesContext annotation.
+1.2.5.3 @SpringBootApplication
+NOTE:
+@SpringBootApplication is a convenience annotation that adds all of the following: @Configuration: Tags the class as a source of bean definitions for the application context. @EnableAutoConfiguration: Tells Spring Boot to start adding beans based on classpath settings, other beans, and various property settings. @EnableWebMvc: Flags the application as a web application and activates key behaviors, such as setting up a DispatcherServlet. Spring Boot adds it automatically when it sees spring-webmvc on the classpath. @ComponentScan: Tells Spring to look for other components, configurations, and services in the the com.example.t
+1.2.5.3.1 @Configuration
+1.2.5.3.2 @EnableAutoConfiguration
+1.2.5.3.3 @EnableWebMvc
+1.2.5.3.4 @ComponentScan
+1.2.5.4 @WebMvcTest
+NOTE:
+@WebMvcTest will auto-configure the Spring MVC infrastructure and limit scanned beans to @Controller, @ControllerAdvice, @JsonComponent, Filter, WebMvcConfigurer and HandlerMethodArgumentResolver. Regular @Component beans will not be scanned when using this annotation.
+1.2.5.4.1 @MockBean
+NOTE:
+another example: import org.junit.*; import org.junit.runner.*; import org.springframework.beans.factory.annotation.*; import org.springframework.boot.test.autoconfigure.web.servlet.*; import org.springframework.boot.test.mock.mockito.*; import static org.assertj.core.api.Assertions.*; import static org.mockito.BDDMockito.*; import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*; import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*; @RunWith(SpringRunner.class) @WebMvcTest(UserVehicleController.class) public class MyControllerTests { @Autowired private MockMvc mvc; @MockBean private UserVehicleService userVehicleService; @Test public void testExample() throws Exception { given(this.userVehicleService.getVehicleDetails("sboot")) .willReturn(new VehicleDetails("Honda", "Civic")); this.mvc.perform(get("/sboot/vehicle").accept(MediaType.TEXT_PLAIN)) .andExpect(status().isOk()).andExpect(content().string("Honda Civic")); } }
+1.3 xunitpatterns
+1.3.1 Goals of Test Automation
+1.3.1.1 Project Goals
+1.3.1.1.1 Tests as Specification
+1.3.1.1.2 Tests as Documentation
+1.3.1.1.3 Tests as Safety Net
+1.3.1.1.4 Defect Localization
+1.3.1.1.5 Easy To Write/Maintain
+1.3.1.1.6 Reduce Risk
+1.3.1.1.7 Bug Repellent
+1.3.1.2 Test Writing Goals
+1.3.1.2.1 Fully Automated
+1.3.1.2.2 Self-Checking
+1.3.1.2.3 Repeatable Test
+1.3.1.2.4 Robust Test
+1.3.1.2.5 Simple Test
+1.3.1.2.6 Expressive Test
+1.3.1.2.7 Separation of Concerns
+1.3.1.2.8 Do No Harm
+1.3.2 Principles of Test Automation
+1.3.2.1 Write the Tests First
+1.3.2.2 Isolate the SUT
+1.3.2.3 Don't Modify the SUT
+1.3.2.4 Minimize Test overlap
+1.3.2.5 Communicate Intent
+1.3.2.6 Keep Test Logic out of Production
+1.3.2.7 Use the Front Door First
+1.3.2.8 Verify One Condition per Test
+1.3.2.9 Test Concerns Separately
+1.3.2.10 Keep Tests Independent
+1.3.2.11 Minimize Untestable Code
+1.3.3 Smells
+1.3.3.1 Project
+1.3.3.1.1 Buggy Tests
+1.3.3.1.2 Production Bugs
+1.3.3.1.3 Developers Not writing Tests
+1.3.3.1.4 High Test Maintenance Cost
+1.3.3.2 Behavioral
+1.3.3.2.1 examples
+1.3.3.2.1.1 Fragile Test
+NOTE:
+Fragile Tests—Every time you change the SUT, tests won’t compile or they fail. You need to modify lots of tests to get things “green” again. This greatly increases the cost of maintaining the system. Contributing code smells include Test Code Duplication and Hard Coded Test Data.
+1.3.3.2.1.2 Fragile Fixture
+NOTE:
+Fragile Fixture—Tests start failing when a shared fixture is modified (e.g., new records are put into the database). This is because the tests are making assumptions about the contents of the shared fixture. A contributing code smell is Mystery Guest.
+1.3.3.2.1.3 Slow Tests
+1.3.3.2.1.4 Erratic Test
+1.3.3.2.1.5 Frequent Debugging
+1.3.3.2.1.6 Manual Intervention
+NOTE:
+Unrepeatable Tests—Tests can’t be run repeatedly without manual intervention. Caused by tests not cleaning up after themselves and preventing themselves (or other tests) from running again. The root cause is typically Hard-coded Test Data.
+1.3.3.2.1.7 Assertion Roulette
+1.3.3.2.1.8 Interdependent Tests
+NOTE:
+Interdependent Tests—When one test fails, a number of other tests fail for no apparent reason because they depend on a previously run tests’ side effects. Tests cannot be run alone and are hard to maintain.
+1.3.3.2.1.9 Test Run War
+NOTE:
+Test Run War [6]—Seemingly random, transient test failures. Only occurs when several people testing simultaneously. Caused by parallel tests interacting with each other through a shared test fixture
+1.3.3.3 Code
+1.3.3.3.1 Must be recognized by test automater
+1.3.3.3.2 examples
+1.3.3.3.2.1 Conditional Test Logic
+NOTE:
+Complex Test Code—Too much test code or Conditional Test Logic. Hard to verify correctness; more likely to have bugs in the tests
+1.3.3.3.2.2 Hard-to-test Code
+1.3.3.3.2.3 Test Code Duplication
+1.3.3.3.2.4 Test Logic in Production
+1.3.3.3.2.5 Obscure Test
+1.3.3.3.2.6 Magic Numbers
+1.3.3.3.2.7 Mystery Guest
+NOTE:
+—When a test uses external resources such as a file containing test data, it becomes hard to tell what the test is really verifying. These tests often have a “lopsided” feel to them (either setup or verification of outcome is external to test). 
+1.3.3.3.2.8 Complex Undo Logic
+NOTE:
+—Complex fixture teardown code. More likely to leave test environment corrupted by not cleaning up correctly. Results in “data leaks” that may later cause this or other tests to fail for no apparent reason.
+1.3.4 Patterns
+1.3.4.1 xUnit Basic Patterns
+1.3.4.1.1 Test Double
+1.3.4.1.1.1 Diagrams
+1.3.4.1.1.1.1 png_6902300155123462414.png
+1.3.4.1.1.1.2 png_7398045550738956893.png
+1.3.4.1.1.2 Mock
+NOTE:
+Mocks are objects that register calls they receive.In test assertion we can verify on Mocks that all expected actions were performed. 
+
+https://blog.pragmatists.com/test-doubles-fakes-mocks-and-stubs-1a7491dfa3da
+
+
+public class SecurityCentralTest { Window windowMock = mock(Window.class); Door doorMock = mock(Door.class); @Test public void enabling_security_locks_windows_and_doors() { SecurityCentral securityCentral = new SecurityCentral(windowMock, doorMock); securityCentral.securityOn(); verify(doorMock).close(); verify(windowMock).close(); } }After execution of securityOn method, window and door mocks recorded all interactions. This lets us verify that window and door objects were instructed to close themselves. That's all we need to test from SecurityCental perspective.You may ask how can we tell if door and window will be closed for real if we use mock? The answer is that we can’t. But we don’t care about it. This is not responsibility of SecurityCentral. This is responsibility of Door and Window alone to close itself when they get proper signal. We can test it independently in different unit test. 
+1.3.4.1.1.2.1 they register calls they receive.
+1.3.4.1.1.3 Stub
+NOTE:
+Stub is an object that holds predefined data and uses it to answer calls during tests. It is used when we cannot or don’t want to involve objects that would answer with real data or have undesirable side effects. https://blog.pragmatists.com/test-doubles-fakes-mocks-and-stubs-1a7491dfa3da  An example can be an object that needs to grab some data from the database to respond to a method call. Instead of the real object, we introduced a stub and defined what data should be returned.
+
+public class GradesService {
+    private final Gradebook gradebook;
+   
+    public GradesService(Gradebook gradebook) {
+        this.gradebook = gradebook;
+    }
+   
+    Double averageGrades(Student student) {
+        return average(gradebook.gradesFor(student));
+    }
+}
+
+Instead of calling database from Gradebook store to get real students grades, we preconfigure stub with grades that will be returned. We define just enough data to test average calculation algorithm.
+
+ 
+public class GradesServiceTest {
+    private Student student;
+    private Gradebookgradebook;
+
+    @Before
+    public void setUp() throws Exception {
+        gradebook = mock(Gradebook.class);
+        student = new Student();
+    }
+
+    @Test
+    public void calculates_grades_average_for_student() {
+        when(gradebook.gradesFor(student)).thenReturn(grades(8, 6, 10)); //stubbing gradebook
+        double averageGrades = new GradesService(gradebook).averageGrades(student);
+        assertThat(averageGrades).isEqualTo(8.0);
+    }
+}
+1.3.4.1.1.3.1 holds predefined data and uses it to answer calls during tests
+1.3.4.1.1.4 Fake
+NOTE:
+Fakes are objects that have working implementations, but not same as production one. Usually they take some shortcut and have simplified version of production code. 
+
+Apart from testing, fake implementation can come handy for prototyping and spikes.
+We can quickly implement and run our system with in-memory store, deferring decisions about database design.
+Another example can be also a fake payment system, that will always return successful payments.
+
+@Profile("transient")
+public class FakeAccountRepository implements AccountRepository {
+      
+       Map<User, Account> accounts = new HashMap<>();
+      
+       public FakeAccountRepository() {
+              this.accounts.put(new User("john@bmail.com"), new UserAccount());
+              this.accounts.put(new User("boby@bmail.com"), new AdminAccount());
+       }
+      
+       String getPasswordHash(User user) {
+              return accounts.get(user).getPasswordHash();
+       }
+}
+1.3.4.1.1.4.1 they have working implementations, but not same as production one
+1.3.4.1.1.4.1.1 png_429287788922308589.png
+1.3.4.1.1.5 Spy
+NOTE:
+Like a Test Stub, the Test Spy may need to provide values to the SUT in response to method calls but the Test Spy also captures the indirect outputs of the SUT as it is exercised and saves them for later verification by the test. So in many ways the Test Spy is "just a" Test Stub with some recording capability.  
+
+While it is used for the same fundamental purpose as a Mock Object (page X), the style of test we write using a Test Spy looks much more like a test written with a Test Stub. 
+1.3.4.1.2 Test Automation Strategy
+1.3.4.1.2.1 Diagrams
+1.3.4.1.2.1.1 png_5012700690306985078.png
+1.3.4.1.2.1.2 png_7093064441940533930.png
